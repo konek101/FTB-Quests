@@ -65,6 +65,7 @@ All quest objects (quests, chapters, tasks, rewards, etc.) use **16-character he
 - **Length**: Must be exactly 16 hexadecimal characters
 - **Characters**: Only `0-9`, `a-f`, `A-F` are allowed
 - **Range**: IDs are stored as signed 64-bit longs
+- **Positive Values Only**: First hex digit must be `0-7` (not `8-9`, `A-F`) to ensure positive long values
 - **Uniqueness**: Each ID must be unique across the entire quest file
 - **Reserved IDs**: 
   - `0000000000000000` (0) - Reserved for null/missing objects
@@ -74,10 +75,11 @@ All quest objects (quests, chapters, tasks, rewards, etc.) use **16-character he
 
 When manually creating IDs:
 
-1. **Use Random Values**: Generate random 16-character hex strings
-2. **Avoid Collisions**: Never reuse an ID that already exists
-3. **Avoid Reserved**: Don't use `0000000000000000` or `0000000000000001`
-4. **Case Insensitive**: `1A2B` and `1a2b` are the same ID
+1. **Start with 0-7**: First hex digit must be `0-7` to avoid negative values (e.g., `1A2B...` not `9A0B...`)
+2. **Use Random Values**: Generate random 16-character hex strings
+3. **Avoid Collisions**: Never reuse an ID that already exists
+4. **Avoid Reserved**: Don't use `0000000000000000` or `0000000000000001`
+5. **Case Insensitive**: `1A2B` and `1a2b` are the same ID
 
 ### ID Parsing
 
@@ -93,6 +95,7 @@ IDs can be specified in multiple ways:
 ❌ **Too Long**: `"1A2B3C4D5E6F0A1B99"` (18 characters)
 ❌ **Invalid Characters**: `"1A2B3C4D5E6F0G1H"` (contains G and H)
 ❌ **Reserved**: `"0000000000000000"` (reserved for null)
+❌ **Negative Value**: `"9A0B1C2D3E4F5678"` (starts with 9, becomes negative - will be replaced)
 
 ## Main Quest File
 
@@ -485,9 +488,7 @@ Requires collecting specific items.
 {
 	id: "5F6A0B1C2D3E4F5A"
 	type: "item"
-	item: {
-		id: "minecraft:diamond"
-	}
+	item: "minecraft:diamond"
 	count: 64L
 	consume_items: "default"
 	only_from_crafting: "default"
@@ -498,12 +499,16 @@ Requires collecting specific items.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `item` | compound | - | Item stack NBT |
+| `item` | string or compound | - | Item ID (string) or item stack NBT (compound) |
 | `count` | long | 1 | Number of items required |
 | `consume_items` | tristate | "default" | Whether items are consumed |
 | `only_from_crafting` | tristate | "default" | Only count crafted items |
 | `match_components` | string | "none" | Component matching: "none", "fuzzy", "exact" |
 | `task_screen_only` | boolean | false | Only submit via task screen |
+
+**Note**: Items can be specified as:
+- Simple string: `item: "minecraft:diamond"`
+- Compound tag (1.21+): `item: { id: "minecraft:diamond" }`
 
 #### Checkmark Task
 
@@ -547,7 +552,7 @@ Requires entering a specific dimension.
 
 ```snbt
 {
-	id: "8C2D3E4F5A6B7C8D"
+	id: "1C2D3E4F5A6B7C8D"
 	type: "dimension"
 	dimension: "minecraft:the_nether"
 }
@@ -565,7 +570,7 @@ Requires achieving a stat milestone.
 
 ```snbt
 {
-	id: "9D3E4F5A6B7C8D9E"
+	id: "2D3E4F5A6B7C8D9E"
 	type: "stat"
 	stat: "minecraft:play_time"
 	value: 72000
@@ -747,7 +752,7 @@ Requires having a specific game stage (Game Stages mod).
 
 ```snbt
 {
-	id: "861A2B3C4D5E6F0A"
+	id: "161A2B3C4D5E6F0A"
 	type: "ftbquests:gamestage"
 	stage: "stage_name"
 }
@@ -765,7 +770,7 @@ Custom scripted task (requires scripting support).
 
 ```snbt
 {
-	id: "972B3C4D5E6F0A1B"
+	id: "172B3C4D5E6F0A1B"
 	type: "custom"
 	title: "Custom Task"
 	icon: "minecraft:command_block"
@@ -809,9 +814,7 @@ Gives items to the player.
 {
 	id: "083C4D5E6F0A1B2C"
 	type: "item"
-	item: {
-		id: "minecraft:diamond"
-	}
+	item: "minecraft:diamond"
 	count: 1
 	random_bonus: 0
 	only_one: false
@@ -820,10 +823,14 @@ Gives items to the player.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `item` | compound | - | Item stack NBT |
+| `item` | string or compound | - | Item ID (string) or item stack NBT (compound) |
 | `count` | int | 1 | Number of items |
 | `random_bonus` | int | 0 | Additional random items (0 to this value) |
 | `only_one` | boolean | false | Only one player can claim |
+
+**Note**: Items can be specified as:
+- Simple string: `item: "minecraft:diamond"`
+- Compound tag (1.21+): `item: { id: "minecraft:diamond" }`
 
 #### Choice Reward
 
@@ -967,7 +974,7 @@ Shows a toast notification.
 
 ```snbt
 {
-	id: "861B4E5F6A0B1C2D"
+	id: "161B4E5F6A0B1C2D"
 	type: "toast"
 	description: "You completed the quest!"
 }
@@ -985,7 +992,7 @@ Adds or removes a game stage.
 
 ```snbt
 {
-	id: "972C5F6A0B1C2D3E"
+	id: "172C5F6A0B1C2D3E"
 	type: "ftbquests:gamestage"
 	stage: "stage_name"
 	remove: false
@@ -1067,17 +1074,13 @@ Reward tables define collections of rewards that can be referenced by choice and
 		{
 			id: "1F5A6B7C8D9E0F1A"
 			type: "item"
-			item: {
-				id: "minecraft:diamond"
-			}
+			item: "minecraft:diamond"
 			weight: 10.0f
 		}
 		{
 			id: "205A6B7C8D9E0F1A"
 			type: "item"
-			item: {
-				id: "minecraft:gold_ingot"
-			}
+			item: "minecraft:gold_ingot"
 			count: 5
 			weight: 20.0f
 		}
@@ -1156,9 +1159,7 @@ Loot crates are physical items that drop from entities and can be opened for rew
 				{
 					id: "4D5E6F0A1B2C3D4E"
 					type: "item"
-					item: {
-						id: "minecraft:apple"
-					}
+					item: "minecraft:apple"
 					count: 5
 				}
 			]
@@ -1175,9 +1176,7 @@ Loot crates are physical items that drop from entities and can be opened for rew
 				{
 					id: "6F0A1B2C3D4E5F6A"
 					type: "item"
-					item: {
-						id: "minecraft:oak_log"
-					}
+					item: "minecraft:oak_log"
 					count: 16L
 				}
 			]
@@ -1185,9 +1184,7 @@ Loot crates are physical items that drop from entities and can be opened for rew
 				{
 					id: "7A0B1C2D3E4F5A6B"
 					type: "item"
-					item: {
-						id: "minecraft:wooden_axe"
-					}
+					item: "minecraft:wooden_axe"
 				}
 			]
 		}
@@ -1199,7 +1196,7 @@ Loot crates are physical items that drop from entities and can be opened for rew
 
 ```snbt
 {
-	id: "8B1C2D3E4F5A6B7C"
+	id: "1B1C2D3E4F5A6B7C"
 	title: "Advanced Gathering"
 	icon: "minecraft:diamond"
 	x: 0.0d
@@ -1207,11 +1204,9 @@ Loot crates are physical items that drop from entities and can be opened for rew
 	description: ["Complete all these tasks to master gathering!"]
 	tasks: [
 		{
-			id: "9C2D3E4F5A6B7C8D"
+			id: "2C2D3E4F5A6B7C8D"
 			type: "item"
-			item: {
-				id: "minecraft:diamond"
-			}
+			item: "minecraft:diamond"
 			count: 10L
 		}
 		{
@@ -1282,27 +1277,21 @@ Loot crates are physical items that drop from entities and can be opened for rew
 		{
 			id: "7E0F1A2B3C4D5E6F"
 			type: "item"
-			item: {
-				id: "minecraft:iron_ingot"
-			}
+			item: "minecraft:iron_ingot"
 			count: 10
 			weight: 50.0f
 		}
 		{
-			id: "8F1A2B3C4D5E6F0A"
+			id: "1F1A2B3C4D5E6F0A"
 			type: "item"
-			item: {
-				id: "minecraft:gold_ingot"
-			}
+			item: "minecraft:gold_ingot"
 			count: 5
 			weight: 30.0f
 		}
 		{
-			id: "9A2B3C4D5E6F0A1B"
+			id: "2A2B3C4D5E6F0A1B"
 			type: "item"
-			item: {
-				id: "minecraft:diamond"
-			}
+			item: "minecraft:diamond"
 			count: 1
 			weight: 10.0f
 		}
@@ -1346,9 +1335,7 @@ Loot crates are physical items that drop from entities and can be opened for rew
 		{
 			id: "3E6F0A1B2C3D4E5F"
 			type: "item"
-			item: {
-				id: "minecraft:diamond_block"
-			}
+			item: "minecraft:diamond_block"
 			count: 10
 		}
 	]
