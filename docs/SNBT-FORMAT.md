@@ -7,6 +7,7 @@ This document provides comprehensive documentation on the SNBT (Stringified NBT)
 - [Overview](#overview)
 - [File Structure](#file-structure)
 - [ID Format and Validation](#id-format-and-validation)
+- [Number Format](#number-format)
 - [Main Quest File](#main-quest-file)
 - [Chapter Groups](#chapter-groups)
 - [Chapters](#chapters)
@@ -97,6 +98,30 @@ IDs can be specified in multiple ways:
 ❌ **Reserved**: `"0000000000000000"` (reserved for null)
 ❌ **Negative Value**: `"9A0B1C2D3E4F5678"` (starts with 9, becomes negative - will be replaced)
 
+## Number Format
+
+### Type Inference
+
+In FTB Quests SNBT files, **number types are inferred automatically** - do not use type suffixes like `L`, `F`, or `d`. Using suffixes will cause the value to be interpreted as a string and may lead to unexpected behavior.
+
+### Correct Format
+
+✅ **Integers**: Use plain numbers without suffixes
+- `count: 5`
+- `value: 100`
+
+✅ **Decimals**: Use decimal notation without suffixes
+- `x: 2.0`
+- `weight: 10.5`
+
+### Incorrect Format
+
+❌ **Do NOT use type suffixes**:
+- `count: 5L` ← Wrong (will be cast as string)
+- `x: 2.0d` ← Wrong (will be cast as string)
+- `weight: 10.5f` ← Wrong (will be cast as string)
+- `value: 100F` ← Wrong (will be cast as string)
+
 ## Main Quest File
 
 **File**: `data.snbt`
@@ -130,7 +155,7 @@ This file contains the global quest system configuration.
 	]
 	emergency_items_cooldown: 300
 	disable_gui: false
-	grid_scale: 0.5d
+	grid_scale: 0.5
 	pause_game: false
 	lock_message: ""
 }
@@ -224,7 +249,7 @@ Chapters contain collections of quests and are displayed as quest boards.
 	title: "Chapter Title"
 	icon: "minecraft:crafting_table"
 	default_quest_shape: "circle"
-	default_quest_size: 1.0d
+	default_quest_size: 1.0
 	default_hide_dependency_lines: false
 	always_invisible: false
 	default_min_width: 0
@@ -238,11 +263,11 @@ Chapters contain collections of quests and are displayed as quest boards.
 	autofocus_id: ""
 	images: [
 		{
-			x: 0.0d
-			y: 0.0d
-			width: 1.0d
-			height: 1.0d
-			rotation: 0.0d
+			x: 0.0
+			y: 0.0
+			width: 1.0
+			height: 1.0
+			rotation: 0.0
 			image: "minecraft:textures/block/stone.png"
 			hover: []
 			click: ""
@@ -337,8 +362,8 @@ Quests are defined within chapter files in the `quests` list.
 	id: "4D5E6F0A1B2C3D4E"
 	title: "Quest Title"
 	icon: "minecraft:diamond"
-	x: 0.0d
-	y: 0.0d
+	x: 0.0
+	y: 0.0
 	shape: "circle"
 	subtitle: ["Subtitle text"]
 	description: [
@@ -355,8 +380,8 @@ Quests are defined within chapter files in the `quests` list.
 	hide_text_until_complete: "default"
 	hide_details_until_startable: "default"
 	disable_recipe_mod: "default"
-	size: 1.0d
-	icon_scale: 1.0d
+	size: 1.0
+	icon_scale: 1.0
 	optional: false
 	min_width: 0
 	can_repeat: "default"
@@ -489,7 +514,7 @@ Requires collecting specific items.
 	id: "5F6A0B1C2D3E4F5A"
 	type: "item"
 	item: "minecraft:diamond"
-	count: 64L
+	count: 64
 	consume_items: "default"
 	only_from_crafting: "default"
 	match_components: "none"
@@ -534,7 +559,7 @@ Requires collecting experience points.
 {
 	id: "7B1C2D3E4F5A6B7C"
 	type: "xp"
-	value: 100L
+	value: 100
 	points: false
 }
 ```
@@ -593,7 +618,7 @@ Requires killing specific entities.
 	id: "0E4F5A6B7C8D9E0F"
 	type: "kill"
 	entity: "minecraft:zombie"
-	value: 50L
+	value: 50
 }
 ```
 
@@ -660,7 +685,7 @@ Requires observing (looking at) specific entities or blocks.
 	type: "observation"
 	observe_type: "block"
 	to_observe: "minecraft:diamond_ore"
-	timer: 0L
+	timer: 0
 }
 ```
 
@@ -717,7 +742,7 @@ Requires collecting fluid.
 	id: "649E0F1A2B3C4D5E"
 	type: "fluid"
 	fluid: "minecraft:water"
-	amount: 1000L
+	amount: 1000
 }
 ```
 
@@ -736,7 +761,7 @@ Requires collecting energy (requires mod support).
 {
 	id: "750F1A2B3C4D5E6F"
 	type: "ftbquests:energy"
-	value: 10000L
+	value: 10000
 }
 ```
 
@@ -775,7 +800,7 @@ Custom scripted task (requires scripting support).
 	title: "Custom Task"
 	icon: "minecraft:command_block"
 	check_timer: 20
-	max_input: 1L
+	max_input: 1
 }
 ```
 
@@ -1029,8 +1054,8 @@ Quest links create references to quests in other chapters, allowing you to show 
 {
 	id: "194E0B1C2D3E4F5A"
 	linked_quest: "4D5E6F0A1B2C3D4E"
-	x: 3.0d
-	y: 1.5d
+	x: 3.0
+	y: 1.5
 }
 ```
 
@@ -1075,14 +1100,14 @@ Reward tables define collections of rewards that can be referenced by choice and
 			id: "1F5A6B7C8D9E0F1A"
 			type: "item"
 			item: "minecraft:diamond"
-			weight: 10.0f
+			weight: 10.0
 		}
 		{
 			id: "205A6B7C8D9E0F1A"
 			type: "item"
 			item: "minecraft:gold_ingot"
 			count: 5
-			weight: 20.0f
+			weight: 20.0
 		}
 	]
 }
@@ -1142,8 +1167,8 @@ Loot crates are physical items that drop from entities and can be opened for rew
 			id: "2B3C4D5E6F0A1B2C"
 			title: "Welcome!"
 			icon: "minecraft:grass_block"
-			x: 0.0d
-			y: 0.0d
+			x: 0.0
+			y: 0.0
 			description: [
 				"Welcome to the quest book!"
 				"Complete this quest to get started."
@@ -1168,8 +1193,8 @@ Loot crates are physical items that drop from entities and can be opened for rew
 			id: "5E6F0A1B2C3D4E5F"
 			title: "Gather Wood"
 			icon: "minecraft:oak_log"
-			x: 2.0d
-			y: 0.0d
+			x: 2.0
+			y: 0.0
 			dependencies: ["2B3C4D5E6F0A1B2C"]
 			description: ["Collect some wood to continue."]
 			tasks: [
@@ -1177,7 +1202,7 @@ Loot crates are physical items that drop from entities and can be opened for rew
 					id: "6F0A1B2C3D4E5F6A"
 					type: "item"
 					item: "minecraft:oak_log"
-					count: 16L
+					count: 16
 				}
 			]
 			rewards: [
@@ -1199,20 +1224,20 @@ Loot crates are physical items that drop from entities and can be opened for rew
 	id: "1B1C2D3E4F5A6B7C"
 	title: "Advanced Gathering"
 	icon: "minecraft:diamond"
-	x: 0.0d
-	y: 2.0d
+	x: 0.0
+	y: 2.0
 	description: ["Complete all these tasks to master gathering!"]
 	tasks: [
 		{
 			id: "2C2D3E4F5A6B7C8D"
 			type: "item"
 			item: "minecraft:diamond"
-			count: 10L
+			count: 10
 		}
 		{
 			id: "0D3E4F5A6B7C8D9E"
 			type: "xp"
-			value: 30L
+			value: 30
 			points: false
 		}
 		{
@@ -1239,8 +1264,8 @@ Loot crates are physical items that drop from entities and can be opened for rew
 	id: "3A6B7C8D9E0F1A2B"
 	title: "Daily Bonus"
 	icon: "minecraft:gold_ingot"
-	x: 4.0d
-	y: 0.0d
+	x: 4.0
+	y: 0.0
 	can_repeat: "true"
 	repeat_cooldown: 86400
 	description: ["Complete this quest once per day for rewards!"]
@@ -1279,27 +1304,27 @@ Loot crates are physical items that drop from entities and can be opened for rew
 			type: "item"
 			item: "minecraft:iron_ingot"
 			count: 10
-			weight: 50.0f
+			weight: 50.0
 		}
 		{
 			id: "1F1A2B3C4D5E6F0A"
 			type: "item"
 			item: "minecraft:gold_ingot"
 			count: 5
-			weight: 30.0f
+			weight: 30.0
 		}
 		{
 			id: "2A2B3C4D5E6F0A1B"
 			type: "item"
 			item: "minecraft:diamond"
 			count: 1
-			weight: 10.0f
+			weight: 10.0
 		}
 		{
 			id: "0B3C4D5E6F0A1B2C"
 			type: "xp_levels"
 			xp_levels: 5
-			weight: 10.0f
+			weight: 10.0
 		}
 	]
 }
@@ -1312,8 +1337,8 @@ Loot crates are physical items that drop from entities and can be opened for rew
 	id: "1C4D5E6F0A1B2C3D"
 	title: "Master Quest"
 	icon: "minecraft:nether_star"
-	x: 6.0d
-	y: 0.0d
+	x: 6.0
+	y: 0.0
 	dependencies: [
 		"2B3C4D5E6F0A1B2C"
 		"5E6F0A1B2C3D4E5F"
@@ -1354,11 +1379,11 @@ Loot crates are physical items that drop from entities and can be opened for rew
 	icon: "minecraft:painting"
 	images: [
 		{
-			x: -5.0d
-			y: -5.0d
-			width: 10.0d
-			height: 10.0d
-			rotation: 0.0d
+			x: -5.0
+			y: -5.0
+			width: 10.0
+			height: 10.0
+			rotation: 0.0
 			image: "minecraft:textures/block/grass_block_side.png"
 			hover: ["This is a background decoration"]
 			click: ""
@@ -1539,13 +1564,13 @@ Quest B: dependencies: ["A"]
 2. **Using wrong number suffix**:
    ```snbt
    # For long values, use L
-   count: 64L
+   count: 64
    
    # For double values, use d
-   x: 1.5d
+   x: 1.5
    
    # For float values, use f
-   weight: 10.0f
+   weight: 10.0
    ```
 
 3. **Mismatched braces**:
